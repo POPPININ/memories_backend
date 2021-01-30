@@ -9,12 +9,10 @@ dotenv.config()
 
 const app = express();
 
-// Route for all POST requests
-app.use('/posts', postRoutes);
-
 app.use(bodyParser.json({ limit : "30mb", extended : true}));
 app.use(bodyParser.urlencoded({ limit : "30mb", extended : true}));
 app.use(cors());
+app.use('/posts', postRoutes); // Parent route for all POST requests
 
 const DB_CONNECTION_URL = process.env.DB_CONNECTION_URL;
 
