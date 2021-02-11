@@ -1,13 +1,16 @@
+/* eslint-disable new-cap */
 // Contains all POST requests routes
 // REST API requests to DB
-import express from "express";
-import { getPosts, createPost } from "../controllers/posts.js";
+import express from 'express';
+import {getPosts, createPost, updatePost,
+  deletePost} from '../controllers/posts.js';
 
-const router = express.Router()
+const router = express.Router();
 
-router.get('/', getPosts);
-router.post('/', createPost);
-router.get('/', );
-router.get('/', );
+router.get('/', getPosts); // retrieve all posts
+router.post('/', createPost); // create a post
+router.patch('/:id', updatePost); // update an existing post
+router.delete('/:id', deletePost); // delete an existing post
+
 
 export default router;
