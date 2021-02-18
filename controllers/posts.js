@@ -46,21 +46,24 @@ export async function createPost(request, response) {
  * @return {json} the updated post.
  */
 export const updatePost = async (request, response) => {
-  const {id} = request.params.id; // post ID
-  const {post} = request.body; // updated post data
+  try {
+    const id = request.params.id; // post ID
+    const post = request.body; // updated post data
 
-  console.log('Update API hit.');
-  // ascertain the validity of ID
-  if (!mongoose.Types.ObjectID.isValid(id)) {
-    return response.status(404).send('No post with that ID!');
+    // ascertain the validity of ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return response.status(404).send('No post with that ID!');
+    }
+
+    const newPost = {...post, id};
+
+    const updatedPost = await PostMessage.findByIdAndUpdate(id,
+        newPost, {new: true});
+
+    response.status(200).json(updatedPost); // return updated post
+  } catch (error) {
+    response.status(409).json({message: error.message});
   }
-
-  const newPost = {...post, id};
-
-  const updatedPost = await PostMessage.findByIdAndUpdate(id,
-      newPost, {new: true});
-
-  response.json(updatedPost); // return updated post
 };
 
 
@@ -71,15 +74,45 @@ export const updatePost = async (request, response) => {
  * @return {json} the delete message.
  */
 export const deletePost = async (request, response) => {
-  const {id} = request.params.id;
+  try {
+    const id = request.params.id;
 
-  // ascertain the validity of ID
-  if (!mongoose.Types.ObjectID.isValid(id)) {
-    return response.status(404).send('No post with that ID!');
+    // ascertain the validity of ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return response.status(404).send('No post with that ID!');
+    }
+
+    await PostMessage.findByIdAndRemove(id);
+
+    // return delete success message
+    response.json({message: 'Post deleted successfully.'});
+  } catch (error) {
+    response.status(409).json({message: error.message});
   }
+};
 
-  await PostMessage.findByIdAndRemove(id);
 
-  // return delete success message
-  response.json({message: 'Post deleted successfully.'});
+/**
+ * Like a post.
+ * @param {string} request the API GET request.
+ * @param {string} response the response returned to client.
+ * @return {json} the updated post, with incremented likes.
+ */
+export const likePost = async (request, response) => {
+  try {
+    const id = request.params.id;
+
+    // ascertain the validity of ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return response.status(404).send('No post with that ID!');
+    }
+
+    const post = await PostMessage.findById(id);
+    const updatedPost = await PostMessage.findByIdAndUpdate(id,
+        {likeCount: post.likeCount + 1}, {new: true});
+
+    response.json(updatedPost); // return the updated post
+  } catch (error) {
+    response.status(409).json({message: error.message});
+  }
 };
